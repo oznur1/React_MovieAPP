@@ -1,12 +1,12 @@
 import { configureStore } from "@reduxjs/toolkit";
-import genreReducer from "./genreSlice";
-import movieListReducer from "./movieListSlice"; // <-- isim burada değiştirildi
+import genreSliceReducer from './slices/genreSlice'
+import movieListSliceReducer from './slices/movieListSlice'
 
-const store = configureStore({
+
+export const store = configureStore({
     reducer: {
-        genres: genreReducer,
-        movieList: movieListReducer, // <-- burada doğru isim kullanıldı
+        genre: genreSliceReducer,
+        movieList: movieListSliceReducer,
+        
     }
-});
-
-export default store;
+})

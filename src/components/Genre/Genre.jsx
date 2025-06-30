@@ -4,9 +4,9 @@ import { getGenres } from "../../redux/genreSlice"
 import  "./genre.css"
 
 
-const Genre = () => {
+const Genre = ({setSelectedGenre}) => {
    const dispatch=useDispatch()
-   const genres=useSelector((state)=>state.genres.genres)
+   const {genres}=useSelector((store)=>store.genres)
   
 useEffect(()=>{
   dispatch(getGenres())
@@ -17,7 +17,7 @@ useEffect(()=>{
   <div className='genres'>
     <ul>
       {genres && genres.map((genre, index) => (
-        <li key={genre.id}>{genre.name}</li>
+        <li onClick={()=>setSelectedGenre(genre)} key={genre.id}>{genre.name}</li>
       ))}
     </ul>
   </div>

@@ -1,4 +1,4 @@
-import React from 'react'
+
 import { API_IMG } from '../constants/api';
 import './movieCard.css'
 import { FaStar } from "react-icons/fa6";
