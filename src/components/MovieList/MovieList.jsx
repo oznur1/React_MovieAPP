@@ -1,20 +1,38 @@
-import React, { useEffect } from 'react'
-import { useDispatch } from 'react-redux'
-import { useSelector } from 'react-redux';
-import { getMovieList } from '../../redux/slices/movieListSlice';
-import MovieCard from "../MovieCard/MovieCard"
-import "./MovieList.css"
-import Loading from '../Loading/loading';
-import Error from '../Navbar/Error';
+import React, { useEffect, useState } from 'react'
+import MovieCard from '../movieCard/movieCard'
+import '../movieList/movieList.css'
+import ReactPaginate from 'react-paginate';
+import { GrPrevious, GrNext } from "react-icons/gr";
+import { useDispatch, useSelector } from 'react-redux';
+import { getMovieListByGenre, getMovieList } from '../../redux/slices/movieListSlice';
+const excludedGenres = [18, 10749]; // Hariç tutulacak türlerin ID'leri
 
+const MovieList = ({ selectedGenre }) => {
+  const { movieList } = useSelector((store) => store.movieList)  // movieList: state[]
+  // dispatch(getMovieList()) ve dispatch(getMovieListByGenre()) çalıştığında movieList state'i güncellenir.
+  const dispatch = useDispatch()
 
+  const [itemOffset, setItemOffset] = useState(0);
+  const itemsPerPage = 10;
 
-const MovieList = ({selectedGenre}) => {
-  const dispatch=useDispatch();
-  const {movieList,status,error}=useSelector((state)=>state.movieList. movieList)
- 
+  // excludedGenres dizisindeki elemanlardan herhngi birini içermeyen filmleri filtredim.
+  const filteredMovies = movieList.filter((movie) =>
+    !movie.genre_ids.some((genreId) => excludedGenres.includes(genreId))
+  );
 
-    useEffect(() => {
+  const endOffset = itemOffset + itemsPerPage;
+  const currentItems = filteredMovies.slice(itemOffset, endOffset);
+  const pageCount = Math.ceil(filteredMovies.length / itemsPerPage);
+
+  const handlePageClick = (event) => {
+    const newOffset = (event.selected * itemsPerPage) % filteredMovies.length;
+    console.log(
+      `User requested page number ${event.selected}, which is offset ${newOffset}`
+    );
+    setItemOffset(newOffset);
+  }
+
+  useEffect(() => {
     setItemOffset(0); // Tür değiştiğinde sayfayı sıfırla
     if (!selectedGenre) { // tür seçilmemişse selectedGenre: null --> false
       dispatch(getMovieList())
@@ -26,25 +44,28 @@ const MovieList = ({selectedGenre}) => {
   }, [selectedGenre, dispatch])  // her render'da ve seçili tür id'sini tutan state her değiştiğinde çalışır.  
 
 
-  
-  
-  
   return (
-    <div className='movie-List'>
+    <div className='movie-list'>
+      <h1>{`${selectedGenre ? selectedGenre.name : 'Discover'}`}</h1>
       <ul>
         {
-          status==="fulfilled"?
-         movieList && movieList.map((movie, index) => (
-          <MovieCard key={index} movie={movie} />
-        )) :
-        status==="pending"?
-        <Loading/> :
-        
-        <Error error={error}/>
-        }
+        currentItems && currentItems.map((movie, index) => (
+          <MovieCard key={movie.id} movie={movie} />
+        ))}
       </ul>
-   
-  </div>
+      <div className='pagination-component'>
+        <ReactPaginate
+          className='pagination'
+          breakLabel="..."
+          nextLabel={<GrNext />}
+          onPageChange={handlePageClick}
+          pageRangeDisplayed={5}
+          pageCount={pageCount}
+          previousLabel={<GrPrevious />}
+          renderOnZeroPageCount={null}
+        />
+      </div>
+    </div>
   )
 }
 

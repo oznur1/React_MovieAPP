@@ -1,26 +1,44 @@
-import { useEffect } from "react"
-import { useDispatch, useSelector } from "react-redux"
-import { getGenres } from "../../redux/genreSlice"
-import  "./genre.css"
+import React, { useEffect, useState } from 'react'
+import './genres.css'
+import { getGenres } from '../../redux/slices/genreSlice'
+import { useDispatch, useSelector } from 'react-redux'
 
-
-const Genre = ({setSelectedGenre}) => {
-   const dispatch=useDispatch()
-   const {genres}=useSelector((store)=>store.genres)
+const Genres = ({ setSelectedGenre}) => {
+  const dispatch = useDispatch()
   
-useEffect(()=>{
-  dispatch(getGenres())
- },[dispatch])
- console.log("Redux'taki türler:", genres)
- 
- return (
-  <div className='genres'>
-    <ul>
-      {genres && genres.map((genre, index) => (
-        <li onClick={()=>setSelectedGenre(genre)} key={genre.id}>{genre.name}</li>
-      ))}
-    </ul>
-  </div>
-)
+  const { genres } = useSelector((store) => store.genre)  // genres: state[]
+  // dispatch(getGenres()) çalıştığında genres state'i güncellenir.
+
+  useEffect(() => {
+    dispatch(getGenres())
+  }, [])
+  
+  const [activeGenre, setActiveGenre] = useState(null)
+
+  const handleGenre = (genre) => {
+    setSelectedGenre(genre)
+    setActiveGenre(genre.id)
+  }
+
+  let filteredGenres = genres.filter((genre) => {
+    return genre.id !== 10749 && genre.id !== 18;
+  })  
+
+  return (
+    <div className='genres'>
+        <ul>
+            {filteredGenres?.map((genre, index) => (
+              <li
+                className={`genre ${genre.id === activeGenre ? 'active' : ''}`}
+                onClick={() => handleGenre(genre)}
+                key={genre.id + index}
+              >
+                {genre.name}
+              </li>
+            ))}
+        </ul>
+    </div>
+  )
 }
-export default Genre
+
+export default Genres
